@@ -53,7 +53,7 @@
     "flow-typed": "^2.2.3",
     "loader.js": "^4.2.3",
     "release-it": "^4.2.0"
-},
+  },
   "engines": {
     "node": "^4.5 || 6.* || >= 7.*"
   },
