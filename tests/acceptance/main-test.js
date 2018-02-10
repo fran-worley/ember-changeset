@@ -39,7 +39,7 @@ moduleForAcceptance('Acceptance | main', {
   },
 });
 
-test('it works for belongsTo', function(assert) {
+test('it works for belongsTo relation attributes', function(assert) {
   let user = this.dummyUser;
   let changeset = new Changeset(user);
 
@@ -58,6 +58,58 @@ test('it works for belongsTo', function(assert) {
 
     assert.equal(user.get('profile.firstName'), 'Grace');
     assert.equal(user.get('profile.lastName'), 'Hopper');
+  })
+});
+
+
+test('it works for adding hasMany relation', function(assert) {
+  let store = this.application.__container__.lookup('service:store');
+  let user = this.dummyUser;
+
+  run(() => {
+    let changeset = new Changeset(user);
+
+    assert.equal(2, changeset.get('dogs.length'));
+    changeset.get('dogs').addObject(store.createRecord('dog'))
+    assert.equal(3, changeset.get('dogs.length'));
+
+    changeset.execute();
+
+    assert.equal(3, user.get('dogs.length'));
+  })
+});
+
+test('it works for removing hasMany relation', function(assert) {
+  let user = this.dummyUser;
+
+  run(() => {
+    let changeset = new Changeset(user);
+
+    assert.equal(2, changeset.get('dogs.length'));
+    changeset.get('dogs').popObject();
+    assert.equal(1, changeset.get('dogs.length'));
+
+    changeset.execute();
+
+    assert.equal(1, user.get('dogs.length'));
+  })
+});
+
+test('it works for belongsTo relation', function(assert) {
+  let store = this.application.__container__.lookup('service:store');
+  let user = this.dummyUser;
+
+  run(() => {
+    let anotherProfile = store.createRecord('profile', { firstName: 'Joe', lastName: 'Blog' });
+    let changeset = new Changeset(user);
+
+    assert.notEqual(anotherProfile.get('firstName'), user.get('profile.firstName'));
+    changeset.set('profile', anotherProfile);
+    assert.equal(changeset.get('profile.firstName'), anotherProfile.get('firstName'));
+
+    changeset.execute();
+
+    assert.equal(user.get('profile.firstName'), anotherProfile.get('firstName'));
   })
 });
 
